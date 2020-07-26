@@ -39,5 +39,48 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+
+    // For A register, load it if there's an A-instruction or if ALU
+    // output destination includes A
+    Not(in=instruction[15], out=Ainstruct);
+    Mux16(a=outALU, b=instruction, sel=Ainstruct, out=inA);
+    
+    Or(a=Ainstruct, b=instruction[5], out=loadA);
+    ARegister(in=inA, load=loadA, out[0..14]=addressM, out=outA);
+
+    // From compute spec, when a = 1, use M
+    And(a=instruction[15], b=instruction[12], out=useM);
+    Mux16(a=outA, b=inM, sel=useM, out=AorM);
+
+    // ALU computes using C instruction, and always puts out
+    ALU(x=outD, y=AorM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=outALU,  zr=EQ, ng=LT);
+
+    // If c-instruction and destination includes D (d2), send to D
+    And(a=instruction[15], b=instruction[4], out=loadD);
+    DRegister(in=outALU, load=loadD, out=outD);
+
+    // If c-instruction and destination includes M (d3), write to M
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // Jump to address in register based on jump field of C-instruction and
+    // output of computation
+    // (1) First, get additional possible values
+    Not(in=LT, out=GT);
+    Not(in=EQ, out=NE);
+    And(a=GT, b=EQ, out=GE);
+    And(a=LT, b=EQ, out=LE);
+
+    // (2) Then match jump with ALU output
+    And(a=instruction[0], b=instruction[15], out=JGT);
+    And(a=instruction[1], b=instruction[15], out=JEQ);
+    And(a=instruction[2], b=instruction[15], out=JLT);
+    
+    And(a=JGT, b=GT, out=jump1);
+    And(a=JEQ, b=EQ, out=jump2);
+    And(a=JLT, b=LT, out=jump3);
+
+    Or(a=jump1, b=jump2, out=j12);
+    Or(a=j12, b=jump3, out=loadPC);
+
+    PC(in=outA, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
 }
