@@ -60,11 +60,7 @@ class Parser:
         Returns the symbol or decimal xxx of the current command, @xxx or (xxx)
         Should be called only when commandType() is A or L
         """
-        command = self.command.strip("(@)")
-        py_bin_str = bin(int(command))
-        bin_str = py_bin_str[2:]
-        num_zeros = 16-len(bin_str)
-        return (num_zeros*'0'+bin_str)
+        return self.command.strip("(@)") 
 
     def dest(self):
         """
