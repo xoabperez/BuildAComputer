@@ -1,17 +1,20 @@
-@14
+@START
 0;JMP
+(IFTRUE)
 @SP
 A=M-1
 M=-1
 @currentlineP
 A=M
 0;JMP
+(IFFALSE)
 @SP
 A=M-1
 M=0
 @currentlineP
 A=M
 0;JMP
+(START)
 //push constant 3030
 @3030
 D=A

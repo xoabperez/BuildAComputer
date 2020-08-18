@@ -4,3 +4,6 @@
 *.pyc
 *.vscode
 *.json
+*.dat
+*.out
+*.asm

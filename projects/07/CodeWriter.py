@@ -17,7 +17,7 @@ class CodeWriter:
         self.f = open(out_file, 'w')
 
         # Start after setting up gt/lt/eq sections
-        self.f.write("@14\n")
+        self.f.write("@START\n")
         self.f.write("0;JMP\n")
 
         # Set up sections for gt/lt/eq being true/false
@@ -26,7 +26,7 @@ class CodeWriter:
         # 3. Go to current line pointer
         # 4. Jump to address being pointed to
 
-        self.iftrue_line_num = "2"       
+        self.f.write("(IFTRUE)\n")
         self.f.write("@SP\n")
         self.f.write("A=M-1\n") # Move to x to replace
         self.f.write("M=-1\n")
@@ -34,13 +34,15 @@ class CodeWriter:
         self.f.write("A=M\n")
         self.f.write("0;JMP\n")
 
-        self.iffalse_line_num = "8"
+        self.f.write("(IFFALSE)\n")
         self.f.write("@SP\n")
         self.f.write("A=M-1\n")
         self.f.write("M=0\n")
         self.f.write("@currentlineP\n")
         self.f.write("A=M\n")
         self.f.write("0;JMP\n")
+
+        self.f.write("(START)\n")
 
 
     def __getCurrentLine__(self):
@@ -93,7 +95,7 @@ class CodeWriter:
                 self.f.write("@SP\n")               # Go to x for comparison
                 self.f.write("A=M-1\n")
                 self.f.write("D=M\n")
-                self.f.write("@" + self.iftrue_line_num + "\n")
+                self.f.write("@IFTRUE\n")
             
                 if command == "eq":
                     self.f.write("D;JEQ\n")
@@ -102,7 +104,7 @@ class CodeWriter:
                 elif command == "lt":
                     self.f.write("D;JLT\n")
             
-                self.f.write("@" +self.iffalse_line_num + "\n")
+                self.f.write("@IFFALSE\n")
                 self.f.write("0;JMP\n")
             
 
