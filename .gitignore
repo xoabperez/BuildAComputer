@@ -7,3 +7,5 @@
 *.dat
 *.out
 *.asm
+*.DS_Store
+
